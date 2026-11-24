@@ -1,3 +1,4 @@
+#优化：增加代码注释，完善项目说明文档
 from flask import Flask, render_template, request, Response
 import re
 from collections import Counter
