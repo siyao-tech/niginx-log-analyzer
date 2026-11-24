@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Nginx日志分析</title>
+<script src="/static/js/echarts.min.js"></script>
+<style>
+.box{width:48%;height:320px;float:left;margin:10px;border:1px solid #eee;}
+table{border-collapse:collapse;width:98%;margin:10px;}
+th,td{border:1px solid #999;padding:6px;}
+</style>
+</head>
+<body>
+<h2>网站访问日志可视化分析工具</h2>
+<form method="post" enctype="multipart/form-data">
+<input type="file" name="logfile" accept=".log" required>
+<button type="submit">上传解析</button>
+</form>
+<div class="box" id="trend"></div>
+<div class="box" id="ipChart"></div>
+<div class="box" id="urlChart"></div>
+<div class="box" id="statusChart"></div>
+<div style="clear:both"></div>
+<h3>异常明细 <a href=" ">导出CSV</a ></h3>
+<table>
+<tr><th>IP</th><th>时间</th><th>方法</th><th>URL</th><th>状态码</th><th>UA</th><th>异常原因</th></tr>
+{% for item in anomaly %}
+<tr>
+<td>{{item.ip}}</td>
+<td>{{item.time}}</td>
+<td>{{item.method}}</td>
+<td>{{item.url}}</td>
+<td>{{item.status}}</td>
+<td>{{item.ua}}</td>
+<td>{{item.reason}}</td>
+</tr>
+{% endfor %}
+</table>
+<script>
+const trendData = {{ trend | tojson }};
+const ipData = {{ ip_cnt | tojson }};
+const urlData = {{ url_cnt | tojson }};
+const statusData = {{ status_cnt | tojson }};
+
+const trendChart = echarts.init(document.getElementById('trend'));
+trendChart.setOption({
+    title:{text:"访问量趋势"},
+    xAxis:{data: Object.keys(trendData)},
+    yAxis:{},
+    series:[{type:"line",data: Object.values(trendData)}]
+})
+
+const ipChart = echarts.init(document.getElementById('ipChart'));
+ipChart.setOption({
+    title:{text:"访问IP Top10"},
+    xAxis:{type:'category'},
+    yAxis:{},
+    series:[{type:"bar",data: ipData.map(x=>x[1])}]
+})
+
+const urlChart = echarts.init(document.getElementById('urlChart'));
+urlChart.setOption({
+    title:{text:"访问URL Top10"},
+    xAxis:{type:'category'},
+    yAxis:{},
+    series:[{type:"bar",data: urlData.map(x=>x[1])}]
+})
+
+const stChart = echarts.init(document.getElementById('statusChart'));
+stChart.setOption({
+    title:{text:"状态码分布"},
+    series:[{type:"pie",data: Object.entries(statusData).map( item=> ({name:item[0], value:item[1]}))}]
+})
+</script>
+</body>
+</html>

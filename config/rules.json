@@ -1,0 +1,6 @@
+{
+  "max_ip_count": 100,
+  "error_code": ["404","403","500","502"],
+  "suspicious_ua": ["curl","python-requests","scanner"],
+  "attack_path": ["../","union select","select ","or 1=1"]
+}
